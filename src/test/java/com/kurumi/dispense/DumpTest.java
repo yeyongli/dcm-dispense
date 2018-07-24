@@ -23,7 +23,7 @@ public class DumpTest {
 	
 	@Test
 	public void test1() {
-		
+		//aa bbb
 		String dirStr = "C:\\Users\\h2oco2\\Desktop\\ge1";
 		File dirFile = new File(dirStr);
 		File[] files = dirFile.listFiles();
