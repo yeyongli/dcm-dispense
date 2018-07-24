@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kurumi.dispense.dao.InstanceDao">
+
+	<insert id="insertInstance" parameterType="com.kurumi.dispense.entity.Instance">
+		insert into sop_instance
+		 (
+		    sop_instance_uid,
+		    series_instance_uid,
+		    instance_number,
+		    character_set,
+		    transfer_syntax_uid,
+		    sop_class_uid,
+		    create_date,
+		    process_result,
+		    is_ok,
+			instance_path,
+			ww,
+			wl,
+			dicom_path,
+			frame_index
+		 )values
+		 (
+		 	#{sopInstanceUid},
+		 	#{seriesInstanceUid},
+		 	#{instanceNumber},
+		 	#{characterSet},
+		 	#{transferSyntaxUid},
+		 	#{sopClassUid},
+		 	now(),
+		 	#{processResult},
+		 	#{isOk},
+		 	#{instancePath},
+		 	#{ww},
+		 	#{wl},
+		 	#{dcmFileStorageLocation},
+		 	#{frameIndex}
+		 )
+	</insert>
+	
+	<update id="updateInstance" parameterType="com.kurumi.dispense.entity.Instance">
+		update sop_instance
+			set 
+				instance_number = #{instanceNumber},
+			    character_set = #{characterSet},
+			    transfer_syntax_uid = #{transferSyntaxUid},
+			    sop_class_uid = #{sopClassUid},
+			    process_result = #{processResult},
+			    is_ok = #{isOk},
+			    ww = #{ww},
+			    wl = #{wl},
+			    dicom_path = #{dcmFileStorageLocation},
+			    frame_index = #{frameIndex},
+			    instance_path = #{instancePath}
+		where sop_instance_uid = #{sopInstanceUid}
+	</update>
+		
+	<select id="findCountByInstanceUid" parameterType="string" resultType="long">
+		select count(1) from sop_instance where sop_instance_uid = #{instanceUid}
+	</select>
+	
+	<select id="findInstanceByInstanceUid" parameterType="string" resultType="com.kurumi.dispense.entity.Instance">
+		select 
+			sop_instance_uid sopInstanceUid,
+		    series_instance_uid seriesInstanceUid,
+		    instance_number instanceNumber,
+		    character_set characterSet,
+		    transfer_syntax_uid transferSyntaxUid,
+		    sop_class_uid sopClassUid,
+		    create_date,
+		    process_result processResult,
+		    is_ok isOk,
+		    instance_path instancePath
+		from sop_instance
+		where sop_instance_uid = #{instanceUid}
+	</select>
+	
+	<!-- 统计instance还没上传的还有多少个 -->
+	<select id="findInstanceListBySessionId" parameterType="string" resultType="map">
+		SELECT
+			ins.session_id sessionId,
+			i.sop_instance_uid instanceUid,
+			i.series_instance_uid seriesUid,
+			series.study_instance_uid studyUid,
+			ins.is_ok isOk,
+			ins.process_result processResult
+		FROM
+			sop_instance i
+			INNER JOIN sop_instance_transfer_session ins ON i.sop_instance_uid = ins.sop_instance_uid 
+			AND ins.session_id = #{sessionId}
+			INNER JOIN transfer_session s ON s.session_id = ins.session_id
+		    inner join series_instance series on series.series_instance_uid = i.series_instance_uid
+		    inner join study_instance study on study.study_instance_uid = series.study_instance_uid
+		    where ins.process_result != 1
+	</select>
+	
+	<!-- 统计总数 -->
+	<select id="findInstanceNoSuccessCountBySessionId" parameterType="string" resultType="long">
+		select 
+			count(1) 
+		from
+		    sop_instance i
+			INNER JOIN sop_instance_transfer_session ins ON i.sop_instance_uid = ins.sop_instance_uid 
+				AND ins.session_id = #{sessionId}
+				INNER JOIN transfer_session s ON s.session_id = ins.session_id
+			    inner join series_instance series on series.series_instance_uid = i.series_instance_uid
+			    inner join study_instance study on study.study_instance_uid = series.study_instance_uid
+			    where ins.process_result != 1
+	</select>
+	
+	
+	
+</mapper> 
+
+
+
+

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kurumi.dispense.dao.SessionInstanceDao">
+	
+	<insert id="insertSessionInstance" parameterType="com.kurumi.dispense.entity.SessionInstance">
+		insert into sop_instance_transfer_session
+		(
+			sop_instance_uid,
+			session_id,
+			create_date,
+			is_ok,
+			process_result
+		)values
+		(
+			#{sopInstanceUid},
+			#{sessionId},
+			now(),
+			#{isOk},
+			#{processResult}
+		)
+	</insert>
+	
+	<select id="findCountByInstanceUidAndSessionUid" resultType="long">
+		select count(1) from sop_instance_transfer_session
+		where sop_instance_uid = #{instanceUid} and session_id = #{sessionUid}
+	</select>
+	
+	<update id="updateIsOkAndResultProcessBySessionUidAndInstanceUid" parameterType="map">
+		update sop_instance_transfer_session
+		set is_ok = #{isOk}, process_result=#{processResult}
+		where sop_instance_uid = #{sopInstanceUid} and session_id = #{sessionId}
+	</update>
+	
+	
+	
+	
+
+</mapper> 
+
+
+
+
+
+
+
+

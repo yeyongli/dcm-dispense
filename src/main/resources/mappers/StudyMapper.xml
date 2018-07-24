@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kurumi.dispense.dao.StudyDao">
+
+	<insert id="insertStudyDao" parameterType="com.kurumi.dispense.entity.Study">
+		insert into study_instance
+		 (
+			study_instance_uid,
+			stydy_id,
+			study_date,
+		 	study_time,
+		 	accession_number,
+		 	create_date,
+		 	modality
+		 )values
+		 (
+		 	#{studyInstanceUid},
+		 	#{stydyId},
+		 	#{studyDate},
+		 	#{studyTime},
+		 	#{accessionNumber},
+		 	now(),
+		 	#{modality}
+		 )
+	</insert>
+	
+	<update id="updateStudy" parameterType="com.kurumi.dispense.entity.Study">
+		update study_instance
+		set 
+			stydy_id = #{stydyId},
+			study_date = #{studyDate},
+			study_time = #{studyTime},
+			accession_number = #{accessionNumber},
+			modality = #{modality}
+		where study_instance_uid = #{studyInstanceUid}
+	</update>
+	
+	
+	<select id="findCountByStudyUid" parameterType="string" resultType="long">
+		select count(1) from study_instance where study_instance_uid = #{studyUid}
+	</select>
+	
+	<resultMap type="com.kurumi.dispense.entity.Study" id="studyResultMap">
+		<id property="studyInstanceUid" column="s_study_instance_uid"/>
+		<result property="stydyId" column="s_stydy_id"/>
+		<result property="studyDate" column="s_study_date"/>
+		<result property="modality" column="s_modality"/>
+		<association property="patient" javaType="com.kurumi.dispense.entity.Patient" column="study_instance_uid">
+			<id property="id" column="patient_id"/>
+			<result property="patientID" column="patient_patient_id"/>
+			<result property="patientsName" column="patient_patient_name"/>
+			<result property="patientsBirthDate" column="patient_patient_birthdate"/>
+			<result property="patientsSex" column="patient_patient_sex"/>
+			<result property="patientsAge" column="patient_patient_age"/>
+			<result property="patientsHeight" column="patient_patient_height"/>
+			<result property="patientsWeight" column="patient_patient_weight"/>
+			<result property="patientsNameCn" column="patient_patient_name_cn"/>
+			<result property="departmentName" column="patient_department_name"/>
+			<result property="departmentNumber" column="patient_department_number"/>
+			<result property="studyInstanceUID" column="patient_study_instance_uid"/>
+		</association>
+		<collection property="seriesList" ofType="SeriesInstance" column="study_instance_uid">
+			<id property="seriesInstanceUid" column="se_series_instance_uid"/>
+			<result property="studyInstanceUid" column="se_study_instance_uid"/>
+			<result property="seriesNumber" column="se_series_number"/>
+			<result property="modality" column="s_modality"/>
+			<collection property="instanceList" ofType="Instance" column="series_instance_uid">
+				<id property="sopInstanceUid" column="i_sop_instance_uid"/>
+				<result property="seriesInstanceUid" column="i_series_instance_uid"/>
+				<result property="instanceNumber" column="i_instance_number"/>
+				<result property="sessionId" column="is_session_id"/>
+				<result property="processResult" column="i_process_result"/>
+				<result property="isOk" column="i_is_ok"/>
+				<result property="instancePath" column="i_instance_path"/>
+				<result property="ww" column="ww"/>
+				<result property="wl" column="wl"/>
+				<result property="dcmFileStorageLocation" column="i_dicom_path"/>
+			</collection>
+		</collection>
+	</resultMap>
+	
+	<!-- 查询4级树 -->
+	<select id="findStudyListBySessionId" parameterType="string" resultMap="studyResultMap">
+	   select 
+	    study.study_instance_uid s_study_instance_uid,
+ 		study.stydy_id s_stydy_id,
+ 		date_format(study.study_date, '%Y-%m-%d') s_study_date,
+ 		study.modality s_modality,
+ 		
+ 		series.series_instance_uid se_series_instance_uid,
+ 		series.study_instance_uid se_study_instance_uid,
+ 		series.series_number se_series_number,
+ 		series.modality se_modality,
+ 		
+ 		instance.sop_instance_uid i_sop_instance_uid,
+ 		instance.series_instance_uid i_series_instance_uid,
+ 		instance.instance_number i_instance_number,
+ 		instance.process_result i_process_result,
+ 		instance.is_ok i_is_ok,
+ 		instance.instance_path i_instance_path,
+ 		instance.ww,
+ 		instance.wl,
+ 		instance.dicom_path i_dicom_path,
+ 		
+ 		instance_session.sop_instance_uid is_sop_instance_uid,
+ 		instance_session.session_id is_session_id,
+ 		
+ 		patient.id patient_id,
+ 		patient.patient_id patient_patient_id,
+ 		patient.patient_name patient_patient_name,
+ 		date_format(patient.patient_birthdate, '%Y-%m-%d') patient_patient_birthdate,
+ 		case patient.patient_sex
+ 		when 'M' then '女'
+ 		when 'F' then '男'
+ 		when 'O' then '其它'
+ 		end  patient_patient_sex,
+ 		patient.patient_age patient_patient_age,
+ 		patient.patient_height patient_patient_height,
+ 		patient.patient_weight patient_patient_weight,
+ 		patient.patient_name_cn patient_patient_name_cn,
+ 		patient.department_name patient_department_name,
+ 		patient.department_number patient_department_number,
+ 		patient.study_instance_uid patient_study_instance_uid
+ 		
+		from study_instance study
+		inner join series_instance series on series.study_instance_uid = study.study_instance_uid 
+		inner join sop_instance instance on series.series_instance_uid = instance.series_instance_uid
+		inner join sop_instance_transfer_session instance_session on
+			 instance.sop_instance_uid = instance_session.sop_instance_uid and session_id = #{sessionId}
+		left join patient on patient.study_instance_uid = study.study_instance_uid
+		order by series.series_number asc,instance.instance_number asc, instance.frame_index asc
+	</select>
+	
+	
+	
+	
+</mapper> 
+

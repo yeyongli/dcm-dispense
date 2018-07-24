@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kurumi.dispense.dao.SeriesInstanceDao">
+
+	<insert id="insertSeriesInstance" parameterType="com.kurumi.dispense.entity.SeriesInstance">
+		insert into series_instance
+		(
+			series_instance_uid,
+			create_date,
+			study_instance_uid,
+			modality,
+			series_number
+		)values
+		(
+			#{seriesInstanceUid},
+			now(),
+			#{studyInstanceUid},
+			#{modality},
+			#{seriesNumber}
+		)
+	</insert>
+
+	<select id="findCountBySeriesUid" parameterType="string" resultType="long">
+		select count(1) from series_instance where series_instance_uid = #{seriesUid}
+	</select>
+
+	<select id="findCountBySeriesUidAndStudyUid"  resultType="long">
+		select count(1) from series_instance where series_instance_uid = #{seriesUid} and study_instance_uid = #{studyUid}
+	</select>
+
+	<update id="updateSeriesInstance" parameterType="com.kurumi.dispense.entity.SeriesInstance">
+		update series_instance
+		set 
+			<!-- study_instance_uid = #{studyInstanceUid}, -->
+			modality = #{modality},
+			series_number = #{seriesNumber}
+		where series_instance_uid = #{seriesInstanceUid}
+	</update>
+
+	
+</mapper> 
+
