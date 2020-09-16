@@ -14,8 +14,8 @@ public class ReceiveMSMQUtil {
 	private static Logger log = LoggerFactory.getLogger(ReceiveMSMQUtil.class);
 	
 	static{
-		System.loadLibrary("MsmqJava");
-		//System.load("C:\\Users\\h2oco2\\Desktop\\MsmqJava.dll");
+		//System.loadLibrary("MsmqJava");
+		System.load("C:\\Users\\h2oco2\\Desktop\\MsmqJava.dll");
 	}
 	
 	public static Map<String, String> takeMessageQueue(String fullname) {

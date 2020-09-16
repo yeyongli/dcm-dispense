@@ -1,7 +1,6 @@
 package com.kurumi.dispense.util;
 
 import java.io.BufferedInputStream;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,12 +35,8 @@ public final class PropsUtil {
         }
         return props;
     }
-//    
-//    public static void main(String[] args) {
-//    	//System.out.println(System.getProperty("user.dir") + "\\src\\main\\resources\\" + "config.properties");
-//    	PropsUtil.loadProps("config.properties");
-//	}
     
+
     public static String getString(Properties props, String key) {
         return getString(props, key, "");
     }

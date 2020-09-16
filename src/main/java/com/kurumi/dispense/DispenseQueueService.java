@@ -39,37 +39,37 @@ public class DispenseQueueService implements Runnable{
 	 * @param instanceStr
 	 * @return
 	 */
-	public DicomInstanceMessage getDicomInstanceMessage(String instanceStr) {
+	public DicomInstanceMessage getDicomInstanceMessage_json(String instanceStr) {
+		
 		DicomInstanceMessage dim = null;
 		try {
-			String [] instanceArray = instanceStr.split("\r\n");
-			String sessionId = StringUtil.getArrayOfElement(instanceArray[0]);
-			String studyInstanceUID = StringUtil.getArrayOfElement(instanceArray[1]);
-			String seriesInstanceUID = StringUtil.getArrayOfElement(instanceArray[2]);
-			String sOPInstanceUID = StringUtil.getArrayOfElement(instanceArray[3]);
-			String instanceNumber = StringUtil.getArrayOfElement(instanceArray[4]);
-			String characterSet = StringUtil.getArrayOfElement(instanceArray[5]);
-			String transferSyntaxUID = StringUtil.getArrayOfElement(instanceArray[6]);
-			String sOPClassUID = StringUtil.getArrayOfElement(instanceArray[7]);
-			String modality = StringUtil.getArrayOfElement(instanceArray[8]);
-			String seriesNumber = StringUtil.getArrayOfElement(instanceArray[9]);
-			String dcmFileStorageLocation = StringUtil.getArrayOfElement(instanceArray[10]);
-			String studyID = StringUtil.getArrayOfElement(instanceArray[11]);
-			String studyDate = StringUtil.getArrayOfElement(instanceArray[12]);
-			String studyTime = StringUtil.getArrayOfElement(instanceArray[13]);
-			String accessionNumber = StringUtil.getArrayOfElement(instanceArray[14]); 
-			String frameNumber = StringUtil.getArrayOfElement(instanceArray[15]);
-			
-			//log.info("从msqm队列里面取数据,instanceUid" + sOPInstanceUID);
-		    dim = new DicomInstanceMessage(sessionId, studyInstanceUID, seriesInstanceUID, sOPInstanceUID,
-					instanceNumber, characterSet, transferSyntaxUID, sOPClassUID, modality,
-					seriesNumber, dcmFileStorageLocation, studyID, studyDate, studyTime, accessionNumber, frameNumber);
+			if (StringUtils.isNotBlank(instanceStr)) {
+				dim = new DicomInstanceMessage();
+				Map<String, String> map = JsonUtils.jsonToPojo(instanceStr, Map.class);
+				dim.setSessionId(map.get("sessionId"));
+				dim.setStudyInstanceUID(map.get("studyInstanceUID"));
+				dim.setSeriesInstanceUID(map.get("seriesInstanceUID"));
+				dim.setsOPInstanceUID(map.get("sOPInstanceUID"));
+				dim.setInstanceNumber(map.get("instanceNumber"));
+				dim.setCharacterSet(map.get("characterSet"));
+				dim.setTransferSyntaxUID(map.get("transferSyntaxUID"));
+				dim.setsOPClassUID(map.get("sOPClassUID"));
+				dim.setModality(map.get("modality"));
+				dim.setSeriesNumber(map.get("seriesNumber"));
+				dim.setDcmFileStorageLocation(map.get("dcmFileStorageLocation"));
+				dim.setStudyID(map.get("studyID"));
+				dim.setStudyDate(map.get("studyDate"));
+				dim.setStudyTime(map.get("studyTime"));
+				dim.setAccessionNumber(map.get("accessionNumber"));
+				dim.setNumberFrame(map.get("numberFrame"));
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			log.error("-----------解析从队列里面获取instance信息-----------" + instanceStr + "异常信息为:" + ExceptionUtil.getStackTrace(e));
+			log.error("-----------getDicomInstanceMessage_json方法: 解析从队列里面获取instance信息-----------" + instanceStr + "异常信息为:" + ExceptionUtil.getStackTrace(e));
 		}
 		return dim;
 	}
+	
 	
 	/**
 	 * dicom文件转换为图片
@@ -89,8 +89,7 @@ public class DispenseQueueService implements Runnable{
 			String dcmFileStorageLocation = dim.getDcmFileStorageLocation();
 			//压缩类型
 			String transferSyntaxUID = dim.getTransferSyntaxUID();
-			String dicomDir = dicomResource + "/" + SuidToHash.getHash(sessionId) + "/" + 
-									sessionId + "/" + studyInstanceUID + "/" + seriesInstanceUID;
+			String dicomDir = dicomResource + "/" + SuidToHash.getHash(sessionId) + "/" + sessionId + "/" + studyInstanceUID + "/" + seriesInstanceUID;
 			File dicomDirFile = new File(dicomDir);
 			if (!dicomDirFile.exists()) {
 				dicomDirFile.mkdirs();
@@ -121,60 +120,6 @@ public class DispenseQueueService implements Runnable{
 	/**
 	 * 解析从msmq队列里面获取session信息
 	 * 
-	 * @param instanceStr
-	 * @return
-	 */
-	public SessionMessage getSessionMessage(String instanceStr) {
-		SessionMessage sessionMessage = null;
-		
-		try {
-			//sessionUrl列表
-			String [] instanceArray = instanceStr.split("\r\n");
-			String sessionId =  StringUtil.getArrayOfElement(instanceArray[0]);
-		    sessionMessage = new SessionMessage();
-			sessionMessage.setSessionId(sessionId);
-			List<InstanceUrl> instanceUrlList = new ArrayList<InstanceUrl>();
-			
-			if (instanceArray.length > 1) {
-				for(int i = 1; i < instanceArray.length; i++) {
-					InstanceUrl instanceUrl = new InstanceUrl();
-					String instanceUrlStr = instanceArray[i].replaceFirst("instance=", "");
-					String[]instanceUrlArray = instanceUrlStr.split(",");
-					String studyInstanceUID = instanceUrlArray[0].replaceFirst("studyInstanceUID", "");
-					String seriesInstanceUID = instanceUrlArray[1].replaceFirst("seriesInstanceUID", "");
-					String sOPInstanceUID = instanceUrlArray[2].replaceFirst("sOPInstanceUID", "");
-					String modality = instanceUrlArray[3].replaceFirst("modality", "");
-					String instanceNumber = instanceUrlArray[4].replaceFirst("instanceNumber", "");
-					String studyDate = instanceUrlArray[5].replaceFirst("studyDate", "");
-					String seriesNumber = instanceUrlArray[6].replaceFirst("seriesNumber", "");
-					
-					Integer instanceNum = instanceNumber!=null?Integer.parseInt(instanceNumber):null;
-					Integer seriesNum = seriesNumber!=null?Integer.parseInt(seriesNumber):null;
-					
-					instanceUrl.setStudyInstanceUID(studyInstanceUID);
-					instanceUrl.setSeriesInstanceUID(seriesInstanceUID);
-					instanceUrl.setsOPInstanceUID(sOPInstanceUID);
-					instanceUrl.setModality(modality);
-					instanceUrl.setInstanceNumber(instanceNum);
-					instanceUrl.setSeriesNumber(seriesNum);
-					instanceUrl.setStudyDate(studyDate);
-					
-					instanceUrlList.add(instanceUrl);
-				}
-			}
-			
-			sessionMessage.setInstanceUrlList(instanceUrlList);
-		} catch (Exception e) {
-			e.printStackTrace();
-			log.error("---------解析队列里面的session字符串信息失败!-------" + instanceStr + "异常信息为:" + ExceptionUtil.getStackTrace(e));
-		}
-		
-		return sessionMessage;
-	}
-
-	/**
-	 * 解析从msmq队列里面获取session信息
-	 * 
 	 * @param instanceJsonStr
 	 * @return
 	 */
@@ -185,10 +130,44 @@ public class DispenseQueueService implements Runnable{
 			//sessionUrl列表
 			sessionMessage = JsonUtils.jsonToPojo(instanceJsonStr, SessionMessage.class);
 			
+			if (sessionMessage != null) {
+				List<InstanceUrl> instanceUrlList = sessionMessage.getInstanceUrlList();
+				if (instanceUrlList != null && instanceUrlList.size() > 0) {
+					List<InstanceUrl> newInstanceUrlList = new ArrayList<InstanceUrl>();
+					
+					for (int i = 0; i < instanceUrlList.size(); i++) {
+						InstanceUrl oldInstanceUrl = instanceUrlList.get(i);
+						String oldInstanceUid = oldInstanceUrl.getsOPInstanceUID();
+						int number = 1;
+						
+						try {
+							String numberFrame = oldInstanceUrl.getNumberFrame();
+							if (StringUtils.isNotBlank(numberFrame)) {
+								number = Integer.parseInt(numberFrame);
+							}
+						} catch (Exception e) {
+							e.printStackTrace();
+							log.error("---------遍历session信息, 取出numberFrame字符串转换成整形异常-----------" + ExceptionUtil.getStackTrace(e));
+						}
+						
+						for (int j = 0; j < number; j++) {
+							InstanceUrl newInstanceUrl = (InstanceUrl) oldInstanceUrl.clone();
+							newInstanceUrl.setsOPInstanceUID(oldInstanceUrl.getsOPInstanceUID() + "_" + (j+1));
+							newInstanceUrlList.add(newInstanceUrl);
+						}
+						
+					}
+					
+					sessionMessage.setInstanceUrlList(null);
+					sessionMessage.setInstanceUrlList(newInstanceUrlList);
+				}
+			}
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 			log.error("---------解析队列里面的session字符串信息失败!-------" + instanceJsonStr + "异常信息为:" + ExceptionUtil.getStackTrace(e));
 		}
+		
 		
 		return sessionMessage;
 	}
@@ -243,8 +222,11 @@ public class DispenseQueueService implements Runnable{
 					
 					if (label.equals("instance")) {
 						try {
-							DicomInstanceMessage dim = getDicomInstanceMessage(instanceStr);
+							//DicomInstanceMessage dim = getDicomInstanceMessage(instanceStr);
+							DicomInstanceMessage dim = getDicomInstanceMessage_json(instanceStr);
+							//设置窗宽和窗位
 							dim = setDicomWWAndWL(dim);
+							
 							if (dim != null) {
 								String frameNumber = dim.getNumberFrame();
 								String instanceUid = dim.getsOPInstanceUID();
@@ -283,7 +265,8 @@ public class DispenseQueueService implements Runnable{
 						//添加sessionUrl
 						//AccumulatorService.putAccumulatorQueue(sessionMessage);
 						try {
-							SessionMessage sessionMessage = getSessionMessage(instanceStr);
+							//SessionMessage sessionMessage = getSessionMessage(instanceStr);
+							SessionMessage sessionMessage = getSessionMessage_JsonStr(instanceStr);
 							if (sessionMessage != null) {
 								AccumulatorService.putFirstAccumulatorQueue(sessionMessage);
 							} else {

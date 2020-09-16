@@ -43,6 +43,10 @@ public class Constants {
 	public static final String DICOM_ACCESSION_NUMBER = "(0008,0050)";
 	//(0028,0008) NumberOfFrames
 	public static final String DICOM_NUMBER_FRAMES = "(0028,0008)";
+	//(0010,0020) patientId
+	public static final String PATIENT_ID = "(0010,0020)";
+	
+	
 	//session是否存在
 	public static final int NO_HAVE_SESSION = 0;
 	public static final int HAVE_SESSION = 1;

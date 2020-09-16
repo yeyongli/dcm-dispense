@@ -20,22 +20,22 @@ import com.kurumi.dispense.util.SuidToHash;
 
 /**
  *
- insert into sop_instance_transfer_session
-(
-sop_instance_uid,
-session_id,
-create_date,
-is_ok,
-process_result
-
-)
-select 
-sop_instance_uid,
-'cc2b05de-6110-47cb-a66e-9acf9eb3dd35',
-now(),
-2,
-1
-from sop_instance
+	 insert into sop_instance_transfer_session
+	(
+	sop_instance_uid,
+	session_id,
+	create_date,
+	is_ok,
+	process_result
+	
+	)
+	select 
+	sop_instance_uid,
+	'cc2b05de-6110-47cb-a66e-9acf9eb3dd35',
+	now(),
+	2,
+	1
+	from sop_instance
 
  * @author h2oco2
  *
@@ -66,3 +66,5 @@ public class CreateSesessionJsonFile {
 	}
 
 }
+
+

@@ -37,7 +37,7 @@ class Producer implements Runnable {
   public void run() {
       for(int i=0; i<100000; i++){
           try {
-        	  SendMSMQUtil.putMessageQueue("direct=tcp:192.168.21.85\\private$\\dicomInstanceQueue", "instance",
+        	  SendMSMQUtil.putMessageQueue("direct=tcp:192.168.21.112\\private$\\javaqueue", "instance",
 						 "1111111111111111111111", UUID.randomUUID().toString());
         	  synchronized (Producer.class) {
         		  produceCount = produceCount + 1;
@@ -61,7 +61,7 @@ class Consumer implements Runnable{
       while(true){
           try {
         		  //consumeCount = consumeCount+1;
-        		  ReceiveMSMQUtil.takeMessageQueue("direct=tcp:192.168.21.85\\private$\\dicomInstanceQueue");
+        		  ReceiveMSMQUtil.takeMessageQueue("direct=tcp:192.168.21.112\\private$\\javaqueue");
         		  
         		  synchronized (Consumer.class) {
         			  consumeCount = consumeCount + 1;

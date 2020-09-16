@@ -5,7 +5,7 @@ package com.kurumi.dispense;
  * @author yeyongli
  *
  */
-public class InstanceUrl {
+public class InstanceUrl implements Cloneable{
 	//检查UID
 	private String studyInstanceUID;
 	//序列UID
@@ -20,6 +20,8 @@ public class InstanceUrl {
 	private Integer seriesNumber;
 	//检查日期
 	private String studyDate;
+	//帧的数量
+	private String numberFrame;
 	
 	public String getStudyInstanceUID() {
 		return studyInstanceUID;
@@ -63,6 +65,27 @@ public class InstanceUrl {
 	public void setStudyDate(String studyDate) {
 		this.studyDate = studyDate;
 	}
+	public String getNumberFrame() {
+		return numberFrame;
+	}
+	public void setNumberFrame(String numberFrame) {
+		this.numberFrame = numberFrame;
+	}
 	
+	 @Override  
+	 public Object clone() {  
+		 InstanceUrl instanceUrl = null;  
+	        try{  
+	        	instanceUrl = (InstanceUrl)super.clone();  
+	        }catch(CloneNotSupportedException e) {  
+	            e.printStackTrace();  
+	        }  
+	        return instanceUrl;  
+	    } 
 
+	 
 }
+
+
+
+

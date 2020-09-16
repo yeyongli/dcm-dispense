@@ -6,7 +6,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import org.apache.commons.lang3.StringUtils;
@@ -20,10 +22,8 @@ import com.kurumi.dispense.util.ExceptionUtil;
 public class DumpTest {
 	private static final Logger log = LoggerFactory.getLogger(DumpTest.class);
 	
-	
 	@Test
 	public void test1() {
-		//ddaaada
 		String dirStr = "C:\\Users\\h2oco2\\Desktop\\ge1";
 		File dirFile = new File(dirStr);
 		File[] files = dirFile.listFiles();

@@ -15,9 +15,9 @@ public class SendMSMQUtil {
 	
 	static{
 		//系统去加载MsmqJava默认在项目的根路径下面
-		System.loadLibrary("MsmqJava");
+		//System.loadLibrary("MsmqJava");
 		//指定dll的加载路径
-		//System.load("C:\\Users\\h2oco2\\Desktop\\MsmqJava.dll");
+		System.load("C:\\Users\\h2oco2\\Desktop\\MsmqJava.dll");
 	}
 	
 	/**

@@ -17,7 +17,6 @@ public class DicomDispenseApplication {
 	
 	public static void main(String[] args) {
 		try {
-			
 			initService();
 			//监听patientQueue队列
 			new Thread(new PatientQueueService()).start();
@@ -28,7 +27,7 @@ public class DicomDispenseApplication {
 			log.error("服务初始化异常-------" + ExceptionUtil.getStackTrace(e));
 		}
 	}
-	
+
 	public static void initService() {
 		Properties p = PropsUtil.loadProps("config.properties");
 		String serviceList = p.getProperty("compression.decompression.service.list");
@@ -40,9 +39,11 @@ public class DicomDispenseApplication {
 				DispenseQueueService dispenseQueue = new DispenseQueueService();
 				new Thread(dispenseQueue).start();
 			}
+			
 		}
 	}
-
+	
+	
 	
 }
 
